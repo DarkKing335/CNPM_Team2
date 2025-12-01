@@ -56,7 +56,7 @@ A full-stack RBAC (Role-Based Access Control) application with JWT authenticatio
 
    ```bash
    git clone https://github.com/DarkKing335/CNPM_Team2.git
-   cd demo
+   cd CNPM_Team2
    ```
 
 2. **Install dependencies**
