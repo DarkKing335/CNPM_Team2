@@ -1,0 +1,46 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "RBAC demo with Express and SQL Server",
+  "main": "src/server.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "db:init": "node scripts/init-db.js",
+    "db:test": "node scripts/test-db.js",
+    "user:set": "node scripts/set-password.js",
+    "user:update": "node scripts/update-passwords.js",
+    "login:test": "node scripts/test-login.js"
+  },
+  "keywords": [
+    "rbac",
+    "express",
+    "sqlserver"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "jest": {
+    "testEnvironment": "node",
+    "rootDir": "./",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^12.1.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.1.4"
+  }
+}

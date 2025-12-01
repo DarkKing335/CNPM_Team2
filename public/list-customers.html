@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Customers - RBAC Demo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: { display: ["Manrope", "sans-serif"] },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div class="d-flex flex-column" style="min-height: 100vh">
+      <header class="bg-white border-bottom py-3 px-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0"><i class="bi bi-people text-info"></i> Customers</h4>
+          <div class="d-flex gap-2 align-items-center">
+            <a href="/login.html" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-house-door me-1"></i>Dashboard
+            </a>
+            <button id="logoutBtn" class="btn btn-sm btn-danger">
+              <i class="bi bi-box-arrow-right me-1"></i>Logout
+            </button>
+          </div>
+        </div>
+      </header>
+      <main class="container-fluid py-4">
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <div
+              class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+            >
+              <div class="d-flex gap-2">
+                <input
+                  id="searchInput"
+                  placeholder="Search customers..."
+                  class="form-control form-control-sm"
+                  style="width: 250px"
+                />
+                <button id="refreshBtn" class="btn btn-sm btn-primary">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+              </div>
+              <div id="actions" class="d-flex gap-2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th
+                      data-sort="id"
+                      class="px-5 py-3 text-left font-semibold cursor-pointer select-none"
+                    >
+                      ID<span
+                        class="inline-block ml-1 text-xs"
+                        id="sort-id"
+                      ></span>
+                    </th>
+                    <th
+                      data-sort="name"
+                      class="px-5 py-3 text-left font-semibold cursor-pointer select-none"
+                    >
+                      Name<span
+                        class="inline-block ml-1 text-xs"
+                        id="sort-name"
+                      ></span>
+                    </th>
+                    <th class="px-5 py-3 text-left font-semibold">Contact</th>
+                    <th class="px-5 py-3 text-left font-semibold">Address</th>
+                    <th
+                      data-sort="created_at"
+                      class="px-5 py-3 text-left font-semibold cursor-pointer select-none"
+                    >
+                      Created<span
+                        class="inline-block ml-1 text-xs"
+                        id="sort-created_at"
+                      ></span>
+                    </th>
+                    <th class="px-5 py-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTable">
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      <div
+                        class="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      ></div>
+                      Loading...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- Pagination Controls -->
+        <div
+          class="d-flex justify-content-between align-items-center mt-3 flex-wrap"
+        >
+          <div>
+            <small class="text-muted" id="pageInfo">Page 1</small>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <button id="prevPageBtn" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-chevron-left"></i> Prev
+            </button>
+            <button id="nextPageBtn" class="btn btn-sm btn-outline-secondary">
+              Next <i class="bi bi-chevron-right"></i>
+            </button>
+            <select
+              id="pageSizeSelect"
+              class="form-select form-select-sm"
+              style="width: auto"
+            >
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+        </div>
+        <div id="formContainer" class="mt-4" style="display: none">
+          <div class="card shadow-sm" style="max-width: 600px">
+            <div class="card-header">
+              <h5 id="formTitle" class="mb-0">New Customer</h5>
+            </div>
+            <div class="card-body">
+              <form id="customerForm">
+                <div class="mb-3">
+                  <label class="form-label">Name *</label>
+                  <input
+                    id="custName"
+                    required
+                    maxlength="100"
+                    class="form-control form-control-sm"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Phone</label>
+                  <input
+                    id="custPhone"
+                    maxlength="20"
+                    class="form-control form-control-sm"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    id="custEmail"
+                    type="email"
+                    maxlength="100"
+                    class="form-control form-control-sm"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Address</label>
+                  <input
+                    id="custAddress"
+                    maxlength="255"
+                    class="form-control form-control-sm"
+                  />
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                  <button
+                    type="button"
+                    id="cancelFormBtn"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    id="saveCustomerBtn"
+                    class="btn btn-sm btn-primary"
+                  >
+                    <i class="bi bi-check-lg me-1"></i>Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="./js/list-customers.js"></script>
+  </body>
+</html>

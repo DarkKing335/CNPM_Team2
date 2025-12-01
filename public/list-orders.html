@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>List Orders - RBAC Demo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              success: "#10b981",
+              warning: "#f59e0b",
+              danger: "#ef4444",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "0.75rem",
+              xl: "1rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+    </style>
+  </head>
+  <body
+    class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200"
+  >
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden"
+    >
+      <div class="layout-container flex h-full grow flex-col">
+        <!-- TopNavBar -->
+        <header
+          class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-6 md:px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-10"
+        >
+          <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+            <div class="size-6 text-primary">
+              <svg
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g clip-path="url(#clip0_6_535)">
+                  <path
+                    clip-rule="evenodd"
+                    d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"
+                    fill="currentColor"
+                    fill-rule="evenodd"
+                  ></path>
+                </g>
+                <defs>
+                  <clipPath id="clip0_6_535">
+                    <rect fill="white" height="48" width="48"></rect>
+                  </clipPath>
+                </defs>
+              </svg>
+            </div>
+            <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">
+              Order Management
+            </h2>
+          </div>
+          <div class="flex flex-1 justify-end items-center gap-4">
+            <nav class="hidden md:flex items-center gap-6">
+              <a
+                class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+                href="/login.html"
+                >Dashboard</a
+              >
+              <a class="text-sm font-bold leading-normal text-primary" href="#"
+                >Orders</a
+              >
+            </nav>
+            <div
+              class="w-px h-6 bg-gray-200 dark:border-gray-700 hidden md:block"
+            ></div>
+            <div class="flex items-center gap-4">
+              <button
+                id="logoutBtn"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+              >
+                <span class="truncate">Logout</span>
+              </button>
+              <div
+                class="bg-primary/20 rounded-full size-10 flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-primary"
+                  >person</span
+                >
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div class="layout-content-container flex flex-col flex-1 gap-6">
+            <!-- PageHeading -->
+            <div class="flex flex-wrap justify-between items-center gap-4">
+              <h1
+                class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72"
+              >
+                Orders
+              </h1>
+            </div>
+
+            <!-- Search and Filters Section -->
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+              <!-- SearchBar -->
+              <div class="flex-1 w-full">
+                <label class="flex flex-col min-w-40 h-12 w-full">
+                  <div
+                    class="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary"
+                  >
+                    <div
+                      class="text-gray-500 dark:text-gray-400 flex items-center justify-center pl-4"
+                    >
+                      <span class="material-symbols-outlined">search</span>
+                    </div>
+                    <input
+                      id="searchInput"
+                      class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-2 text-base font-normal leading-normal"
+                      placeholder="Search by Order ID or Description..."
+                      value=""
+                    />
+                  </div>
+                </label>
+              </div>
+
+              <!-- Refresh Button -->
+              <button
+                id="refreshBtn"
+                class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white px-4 hover:bg-primary/90 transition-colors"
+              >
+                <span class="material-symbols-outlined" style="font-size: 20px"
+                  >refresh</span
+                >
+                <p class="text-sm font-medium leading-normal">Refresh</p>
+              </button>
+            </div>
+
+            <!-- Orders Table -->
+            <div
+              class="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+            >
+              <div class="overflow-x-auto">
+                <table
+                  class="w-full text-sm text-left text-gray-600 dark:text-gray-300"
+                >
+                  <thead
+                    class="text-xs text-gray-700 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-700/50"
+                  >
+                    <tr>
+                      <th
+                        data-sort="id"
+                        class="px-6 py-3 font-semibold cursor-pointer select-none"
+                        scope="col"
+                      >
+                        Order ID <span id="sort-id" class="text-xs"></span>
+                      </th>
+                      <th
+                        data-sort="item"
+                        class="px-6 py-3 font-semibold cursor-pointer select-none"
+                        scope="col"
+                      >
+                        Description <span id="sort-item" class="text-xs"></span>
+                      </th>
+                      <th
+                        data-sort="customer_name"
+                        class="px-6 py-3 font-semibold cursor-pointer select-none"
+                        scope="col"
+                      >
+                        Customer
+                        <span id="sort-customer_name" class="text-xs"></span>
+                      </th>
+                      <th
+                        data-sort="created_at"
+                        class="px-6 py-3 font-semibold cursor-pointer select-none"
+                        scope="col"
+                      >
+                        Created Date
+                        <span id="sort-created_at" class="text-xs"></span>
+                      </th>
+                      <th
+                        class="px-6 py-3 font-semibold text-right"
+                        scope="col"
+                      >
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTableBody">
+                    <tr>
+                      <td
+                        colspan="4"
+                        class="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+                      >
+                        <div class="flex flex-col items-center gap-2">
+                          <span
+                            class="material-symbols-outlined text-4xl animate-spin"
+                            >refresh</span
+                          >
+                          <p>Loading orders...</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Pagination Controls -->
+          <div class="flex items-center justify-between mt-6 flex-wrap gap-4">
+            <div id="ordersPageInfo" class="text-sm">Page 1</div>
+            <div class="flex items-center gap-2">
+              <button
+                id="ordersPrevBtn"
+                class="h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-gray-800 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <button
+                id="ordersNextBtn"
+                class="h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-gray-800 disabled:opacity-50"
+              >
+                Next
+              </button>
+              <select
+                id="ordersPageSize"
+                class="h-10 px-2 rounded-md border border-gray-300 bg-white dark:bg-gray-800 text-sm"
+              >
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="./js/list-orders.js"></script>
+  </body>
+</html>
