@@ -501,28 +501,6 @@ npm run login:test
 - `GET /health` - Check server and database status
   - Returns: `{ status: "ok", database: "connected", timestamp }`
 
-## 🤝 Contributing
-
-This is a demo project for learning RBAC concepts. Feel free to:
-
-- Fork and extend with new features
-- Add more modules beyond "Order"
-- Implement additional roles
-- Enhance the UI with more animations
-
-## 📄 License
-
-ISC License
-
-## 🙋 Support
-
-For issues or questions:
-
-1. Check [TESTING.md](./TESTING.md) for common scenarios
-2. Review error logs in console
-3. Verify database connection and schema
-4. Ensure all dependencies are installed
-
 ---
 
 **Built with ❤️ for learning RBAC concepts**
