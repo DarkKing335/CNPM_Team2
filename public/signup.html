@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>User Sign Up - RBAC Order Manager</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#111318] dark:text-white h-screen overflow-hidden">
+<div class="flex h-full w-full">
+    <!-- Left Section: Sign Up Form -->
+    <div class="flex flex-1 flex-col justify-center overflow-y-auto px-6 py-12 lg:px-20 xl:px-32 bg-white dark:bg-background-dark relative z-10 shadow-xl lg:shadow-none w-full lg:max-w-[600px] 2xl:max-w-[700px]">
+        <!-- Mobile/Form Logo Header -->
+        <div class="mb-10 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+                <span class="material-symbols-outlined text-2xl">inventory_2</span>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-[#111318] dark:text-white">RBAC Order Manager</h1>
+        </div>
+        <div class="flex flex-col gap-3 mb-8">
+            <h2 class="text-[#111318] dark:text-white tracking-tight text-[32px] font-bold leading-tight">Create an Account</h2>
+            <p class="text-[#616f89] dark:text-slate-400 text-sm font-normal leading-normal">Get started with RBAC Order Management today.</p>
+        </div>
+        <!-- Form -->
+        <form id="signupForm" class="flex flex-col gap-5 w-full" novalidate>
+            <!-- Username Field -->
+            <div class="flex flex-col gap-2">
+                <label for="username" class="text-[#111318] dark:text-gray-200 text-base font-medium leading-normal">Username</label>
+                <div class="relative flex items-center">
+                    <input id="username" name="username" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbdfe6] dark:border-slate-700 bg-white dark:bg-[#1A202C] focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal transition-all" placeholder="e.g., john_doe" value="" required />
+                </div>
+            </div>
+            <!-- Email Field -->
+            <div class="flex flex-col gap-2">
+                <label for="email" class="text-[#111318] dark:text-gray-200 text-base font-medium leading-normal">Email Address</label>
+                <div class="relative flex items-center">
+                    <input id="email" name="email" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbdfe6] dark:border-slate-700 bg-white dark:bg-[#1A202C] focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal transition-all" placeholder="name@company.com" type="email" value="" required />
+                </div>
+            </div>
+            <!-- Password Field -->
+            <div class="flex flex-col gap-2">
+                <label for="password" class="text-[#111318] dark:text-gray-200 text-base font-medium leading-normal">Password</label>
+                <div class="flex w-full flex-1 items-stretch rounded-lg group relative">
+                    <input id="password" name="password" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbdfe6] dark:border-slate-700 bg-white dark:bg-[#1A202C] focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] pr-12 text-base font-normal leading-normal transition-all" placeholder="••••••••" type="password" value="" required />
+                    <button id="togglePassword" type="button" aria-label="Toggle password visibility" class="absolute right-0 top-0 h-full flex items-center pr-4 text-[#616f89] cursor-pointer hover:text-primary transition-colors bg-transparent border-0">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                </div>
+                <!-- Password Strength Hint -->
+                <div class="flex items-center gap-2 mt-1">
+                    <div id="pw-bars" class="flex gap-1 flex-1 h-1" aria-hidden="true">
+                        <div class="h-full w-full bg-primary rounded-full"></div>
+                        <div class="h-full w-full bg-primary/30 rounded-full"></div>
+                        <div class="h-full w-full bg-[#dbdfe6] dark:bg-slate-700 rounded-full"></div>
+                    </div>
+                    <span id="pw-strength-text" class="text-xs text-[#616f89] dark:text-slate-400 font-medium">Medium</span>
+                </div>
+            </div>
+            <!-- Confirm Password Field -->
+            <div class="flex flex-col gap-2">
+                <label for="confirmPassword" class="text-[#111318] dark:text-gray-200 text-base font-medium leading-normal">Confirm Password</label>
+                <div class="flex w-full flex-1 items-stretch rounded-lg relative">
+                    <input id="confirmPassword" name="confirmPassword" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbdfe6] dark:border-slate-700 bg-white dark:bg-[#1A202C] focus:border-primary h-14 placeholder:text-[#616f89] p-[15px] text-base font-normal leading-normal transition-all" placeholder="••••••••" type="password" value="" required />
+                </div>
+            </div>
+            <!-- Sign Up Button -->
+            <button id="signupSubmit" class="mt-4 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary hover:bg-primary/90 text-white text-base font-bold leading-normal tracking-[0.015em] transition-all shadow-md shadow-primary/20" type="submit">
+                <span class="truncate">Create Account</span>
+            </button>
+        </form>
+        <!-- Footer Link -->
+        <div class="mt-8 text-center">
+            <p class="text-[#616f89] dark:text-slate-400 text-sm font-normal leading-normal">
+                Already have an account?
+                <a class="text-primary font-bold hover:underline ml-1" href="login.html">Log In</a>
+            </p>
+        </div>
+    </div>
+    <!-- Right Section: Visual/Hero -->
+    <div class="hidden lg:flex flex-1 relative bg-slate-50 dark:bg-[#0d121c] items-center justify-center overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 h-full w-full">
+            <img alt="Abstract gradient waves in blue and purple tones" class="h-full w-full object-cover" data-alt="Abstract gradient waves in blue and purple tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkiIsUsTRuhN6T_-TPKMKeDhMN0bU_FUM00UhAuiMqFDo8vjPs8vGV6LVWsVn3kx-AcfkulWK2l8J6xO0jjIbyenEWayM88RIgYgT8gBMSWeAWZrq9VDBOXdR-ODULc7LvVWpAMH-3E8Ub2-izh4jldyhYdKnv0EAV7yOPpez35P296DVqe4UKn8pkJVG0oBlcVzn894cNcsB2JuOV7bl85EHnr0RHD1oICUQEZ0ODp3n6bzUOk1DQoDBbQID_E1Rj9gcqqTVDBhNo"/>
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+        </div>
+        <!-- Content Overlay -->
+        <div class="relative z-10 max-w-lg p-12 text-white">
+            <div class="mb-6 inline-flex items-center justify-center rounded-full bg-white/20 p-3 backdrop-blur-sm border border-white/10">
+                <span class="material-symbols-outlined text-3xl">verified_user</span>
+            </div>
+            <h3 class="text-4xl font-bold mb-6 leading-tight drop-shadow-sm">Secure, Scalable Order Management.</h3>
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary-200">check_circle</span>
+                    <p class="text-lg text-slate-100 font-medium">Role-Based Access Control</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary-200">check_circle</span>
+                    <p class="text-lg text-slate-100 font-medium">Real-time Order Tracking</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary-200">check_circle</span>
+                    <p class="text-lg text-slate-100 font-medium">Enterprise Grade Security</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include modal helper and page script -->
+<script src="js/ui-modal.js"></script>
+<script src="js/signup.js"></script>
+</body>
+</html>
