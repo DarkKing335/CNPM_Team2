@@ -13,7 +13,9 @@ async function getUserByUsername(username) {
 }
 
 async function verifyPassword(user, plainPassword) {
-  if (!user) return false;
+  if (!user) {
+    return false;
+  }
   return bcrypt.compare(plainPassword, user.password_hash);
 }
 
@@ -30,7 +32,9 @@ async function getUserRoles(userId) {
 }
 
 async function getRolePermissions(roleIds) {
-  if (!roleIds.length) return [];
+  if (!roleIds.length) {
+    return [];
+  }
   const pool = await getPool();
   const request = pool.request();
   request.input("idsStr", roleIds.join(","));
@@ -63,18 +67,19 @@ async function updateUserPassword(userId, passwordHash) {
 }
 
 // Create a new user and assign default 'Customer' role if available
-async function createUser(username, passwordHash) {
+async function createUser(username, email, passwordHash) {
   const pool = await getPool();
   const tx = new sql.Transaction(pool);
   await tx.begin();
   try {
     const req = new sql.Request(tx);
     req.input("username", username);
+    req.input("email", email);
     req.input("passwordHash", passwordHash);
     const insertRs = await req.query(`
-      INSERT INTO Users (username, password_hash)
+      INSERT INTO Users (username, email, password_hash)
       OUTPUT INSERTED.*
-      VALUES (@username, @passwordHash)
+      VALUES (@username, @email, @passwordHash)
     `);
     const user = insertRs.recordset[0];
 
@@ -99,7 +104,9 @@ async function createUser(username, passwordHash) {
   } catch (e) {
     try {
       await tx.rollback();
-    } catch (_) {}
+    } catch (_) {
+      /* ignore rollback error */
+    }
     throw e;
   }
 }
@@ -127,9 +134,12 @@ async function getUsersWithRoles() {
   const rs = await pool.request().query(q);
   const map = new Map();
   for (const row of rs.recordset) {
-    if (!map.has(row.id))
+    if (!map.has(row.id)) {
       map.set(row.id, { id: row.id, username: row.username, roles: [] });
-    if (row.name_role) map.get(row.id).roles.push(row.name_role);
+    }
+    if (row.name_role) {
+      map.get(row.id).roles.push(row.name_role);
+    }
   }
   return Array.from(map.values());
 }
@@ -222,7 +232,9 @@ async function setRolePermissions(roleId, permissionIds) {
   } catch (e) {
     try {
       await tx.rollback();
-    } catch (_) {}
+    } catch (_) {
+      /* ignore rollback error */
+    }
     throw e;
   }
 }
@@ -253,7 +265,9 @@ async function getOrdersPaged({
   const pool = await getPool();
   // Whitelist sorting columns to prevent SQL injection
   const sortWhitelist = new Set(["id", "item", "customer_name", "created_at"]);
-  if (!sortWhitelist.has(sort)) sort = "created_at";
+  if (!sortWhitelist.has(sort)) {
+    sort = "created_at";
+  }
   dir = dir && dir.toLowerCase() === "asc" ? "ASC" : "DESC";
   page = Number(page) >= 1 ? Number(page) : 1;
   pageSize =
@@ -380,6 +394,9 @@ module.exports.createOrder = createOrder;
 module.exports.updateOrder = updateOrder;
 module.exports.deleteOrder = deleteOrder;
 
+// Expose createUser for signup
+module.exports.createUser = createUser;
+
 // Customers CRUD operations
 async function getCustomers() {
   const pool = await getPool();
@@ -453,7 +470,9 @@ async function getCustomersPaged({
 }) {
   const pool = await getPool();
   const sortWhitelist = new Set(["id", "name", "phone", "email", "created_at"]);
-  if (!sortWhitelist.has(sort)) sort = "created_at";
+  if (!sortWhitelist.has(sort)) {
+    sort = "created_at";
+  }
   dir = dir && dir.toLowerCase() === "asc" ? "ASC" : "DESC";
   page = Number(page) >= 1 ? Number(page) : 1;
   pageSize =

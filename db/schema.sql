@@ -35,6 +35,7 @@ GO
 CREATE TABLE Users (
   id INT IDENTITY(1,1) PRIMARY KEY,
   username NVARCHAR(100) NOT NULL UNIQUE,
+  email NVARCHAR(100) NULL,
   password_hash NVARCHAR(255) NOT NULL
 );
 GO
@@ -63,11 +64,11 @@ INSERT INTO Permissions (name_permission, module) VALUES
 GO
 
 -- Create demo users (password = Password123!) hashed later; placeholders for now
-INSERT INTO Users (username, password_hash) VALUES
- ('admin', 'PLACEHOLDER'),
- ('manager', 'PLACEHOLDER'),
- ('staff', 'PLACEHOLDER'),
- ('customer', 'PLACEHOLDER');
+INSERT INTO Users (username, email, password_hash) VALUES
+ ('admin', 'admin@ued.com', 'PLACEHOLDER'),
+ ('manager', 'manager@ued.com', 'PLACEHOLDER'),
+ ('staff', 'staff@ued.com', 'PLACEHOLDER'),
+ ('customer', 'customer@ued.com', 'PLACEHOLDER');
 GO
 
 -- Assign roles

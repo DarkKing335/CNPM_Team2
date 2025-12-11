@@ -8,6 +8,7 @@ const {
 } = require("./authMiddleware");
 const { getPool } = require("./db");
 const repo = require("./rbacRepository");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
@@ -17,7 +18,9 @@ function logError(error, context = "") {
     `[${new Date().toISOString()}] ERROR ${context}:`,
     error.message
   );
-  if (error.stack) console.error(error.stack);
+  if (error.stack) {
+    console.error(error.stack);
+  }
 }
 
 // Async error wrapper
@@ -200,19 +203,30 @@ app.post(
     const { username, email, password } = req.body || {};
 
     // Basic validations
-    if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
+    if (!username || !password || !email) {
+      return res
+        .status(400)
+        .json({ error: "Username, email and password are required" });
     }
     if (typeof username !== "string" || typeof password !== "string") {
       return res.status(400).json({ error: "Invalid input type" });
     }
     const cleanUsername = username.trim();
+    const cleanEmail = typeof email === "string" ? email.trim() : "";
     if (
       !cleanUsername ||
       cleanUsername.length < 1 ||
       cleanUsername.length > 100
     ) {
       return res.status(400).json({ error: "Invalid username length" });
+    }
+    // Basic email validation
+    if (
+      !cleanEmail ||
+      cleanEmail.length > 100 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)
+    ) {
+      return res.status(400).json({ error: "Invalid email address" });
     }
     if (password.length < 8 || password.length > 255) {
       return res
@@ -229,14 +243,12 @@ app.post(
 
       // Hash and create user
       const hash = await hashPassword(password);
-      const newUser = await repo.createUser(cleanUsername, hash);
+      const newUser = await repo.createUser(cleanUsername, cleanEmail, hash);
 
-      res
-        .status(201)
-        .json({
-          message: "User created",
-          user: { id: newUser.id, username: newUser.username },
-        });
+      res.status(201).json({
+        message: "User created",
+        user: { id: newUser.id, username: newUser.username },
+      });
     } catch (e) {
       logError(e, "signup");
       res.status(500).json({ error: "Failed to create user" });
@@ -477,12 +489,15 @@ app.post(
       if (name.length > 100) {
         return res.status(400).json({ error: "Name too long (max 100)" });
       }
-      if (phone && String(phone).length > 20)
+      if (phone && String(phone).length > 20) {
         return res.status(400).json({ error: "Phone too long (max 20)" });
-      if (email && String(email).length > 100)
+      }
+      if (email && String(email).length > 100) {
         return res.status(400).json({ error: "Email too long (max 100)" });
-      if (address && String(address).length > 255)
+      }
+      if (address && String(address).length > 255) {
         return res.status(400).json({ error: "Address too long (max 255)" });
+      }
       const customer = await repo.createCustomer(
         {
           name: name.trim(),
@@ -517,20 +532,24 @@ app.put(
       if (name.length > 100) {
         return res.status(400).json({ error: "Name too long (max 100)" });
       }
-      if (phone && String(phone).length > 20)
+      if (phone && String(phone).length > 20) {
         return res.status(400).json({ error: "Phone too long (max 20)" });
-      if (email && String(email).length > 100)
+      }
+      if (email && String(email).length > 100) {
         return res.status(400).json({ error: "Email too long (max 100)" });
-      if (address && String(address).length > 255)
+      }
+      if (address && String(address).length > 255) {
         return res.status(400).json({ error: "Address too long (max 255)" });
+      }
       const customer = await repo.updateCustomer(customerId, {
         name: name.trim(),
         phone: phone ? String(phone).trim() : null,
         email: email ? String(email).trim() : null,
         address: address ? String(address).trim() : null,
       });
-      if (!customer)
+      if (!customer) {
         return res.status(404).json({ error: "Customer not found" });
+      }
       res.json({ message: "Customer updated", data: customer });
     } catch (e) {
       logError(e, "update-customer");
@@ -694,7 +713,9 @@ app.get(
   requireRole("Admin"),
   asyncHandler(async (req, res) => {
     const roleId = parseInt(req.query.roleId, 10);
-    if (!roleId) return res.status(400).json({ error: "roleId required" });
+    if (!roleId) {
+      return res.status(400).json({ error: "roleId required" });
+    }
     try {
       const data = await repo.getPermissionIdsByRole(roleId);
       res.json({ data });
@@ -711,10 +732,11 @@ app.post(
   requireRole("Admin"),
   asyncHandler(async (req, res) => {
     const { roleId, permissionIds } = req.body || {};
-    if (!roleId || !Array.isArray(permissionIds))
+    if (!roleId || !Array.isArray(permissionIds)) {
       return res
         .status(400)
         .json({ error: "roleId and permissionIds required" });
+    }
 
     // Validate inputs
     const parsedRoleId = parseInt(roleId, 10);
@@ -740,7 +762,7 @@ app.post(
 );
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logError(err, `${req.method} ${req.path}`);
 
   // Don't leak error details in production
@@ -776,7 +798,9 @@ module.exports.close = () => {
   return new Promise((resolve) => {
     const closeServer = () =>
       new Promise((res) => {
-        if (!server || !server.close) return res();
+        if (!server || !server.close) {
+          return res();
+        }
         server.close(() => res());
       });
 
