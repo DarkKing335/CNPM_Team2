@@ -62,6 +62,48 @@ async function updateUserPassword(userId, passwordHash) {
   );
 }
 
+// Create a new user and assign default 'Customer' role if available
+async function createUser(username, passwordHash) {
+  const pool = await getPool();
+  const tx = new sql.Transaction(pool);
+  await tx.begin();
+  try {
+    const req = new sql.Request(tx);
+    req.input("username", username);
+    req.input("passwordHash", passwordHash);
+    const insertRs = await req.query(`
+      INSERT INTO Users (username, password_hash)
+      OUTPUT INSERTED.*
+      VALUES (@username, @passwordHash)
+    `);
+    const user = insertRs.recordset[0];
+
+    // Try to assign default 'Customer' role if exists
+    const roleReq = new sql.Request(tx);
+    roleReq.input("roleName", "Customer");
+    const roleRs = await roleReq.query(
+      "SELECT id FROM Roles WHERE name_role = @roleName"
+    );
+    if (roleRs.recordset && roleRs.recordset.length > 0) {
+      const roleId = roleRs.recordset[0].id;
+      const urReq = new sql.Request(tx);
+      urReq.input("userId", user.id);
+      urReq.input("roleId", roleId);
+      await urReq.query(
+        "INSERT INTO UserRoles (id_user, id_role) VALUES (@userId, @roleId)"
+      );
+    }
+
+    await tx.commit();
+    return user;
+  } catch (e) {
+    try {
+      await tx.rollback();
+    } catch (_) {}
+    throw e;
+  }
+}
+
 module.exports = {
   getUserByUsername,
   verifyPassword,

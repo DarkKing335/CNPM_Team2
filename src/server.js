@@ -193,6 +193,57 @@ app.post(
   })
 );
 
+// Public signup endpoint (frontend posts to /api/signup)
+app.post(
+  "/api/signup",
+  asyncHandler(async (req, res) => {
+    const { username, email, password } = req.body || {};
+
+    // Basic validations
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
+    }
+    if (typeof username !== "string" || typeof password !== "string") {
+      return res.status(400).json({ error: "Invalid input type" });
+    }
+    const cleanUsername = username.trim();
+    if (
+      !cleanUsername ||
+      cleanUsername.length < 1 ||
+      cleanUsername.length > 100
+    ) {
+      return res.status(400).json({ error: "Invalid username length" });
+    }
+    if (password.length < 8 || password.length > 255) {
+      return res
+        .status(400)
+        .json({ error: "Password must be 8-255 characters" });
+    }
+
+    try {
+      // Check uniqueness
+      const existing = await repo.getUserByUsername(cleanUsername);
+      if (existing) {
+        return res.status(409).json({ error: "Username already exists" });
+      }
+
+      // Hash and create user
+      const hash = await hashPassword(password);
+      const newUser = await repo.createUser(cleanUsername, hash);
+
+      res
+        .status(201)
+        .json({
+          message: "User created",
+          user: { id: newUser.id, username: newUser.username },
+        });
+    } catch (e) {
+      logError(e, "signup");
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  })
+);
+
 // Protected Order routes
 app.get(
   "/orders",
@@ -708,15 +759,30 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}`)
-);
+
+// Start server only when this file is run directly (not when required by tests)
+let server;
+if (require.main === module) {
+  server = app.listen(PORT, () =>
+    console.log(`Server running on port ${PORT}`)
+  );
+}
 
 module.exports = app; // for testing
+// Provide a safe close() that resolves immediately if server was not started
 module.exports.close = () => {
+  // Close the HTTP server (if started) and database connections to avoid test leaks
+  const sql = require("mssql");
   return new Promise((resolve) => {
-    server.close(() => {
-      resolve();
-    });
+    const closeServer = () =>
+      new Promise((res) => {
+        if (!server || !server.close) return res();
+        server.close(() => res());
+      });
+
+    closeServer()
+      .then(() => sql.close().catch(() => {}))
+      .then(() => resolve())
+      .catch(() => resolve());
   });
 };
